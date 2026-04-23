@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>歙县大刀灯IP · 知识产权数据库</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                colors: {
+                    ink: { 50:'#f5f0e8',100:'#e8e0d0',200:'#c4b99e',300:'#a39e93',400:'#6b6660',500:'#4a4642',600:'#3a3632',700:'#2e2b27',800:'#252320',900:'#1c1a17',950:'#0f0e0c' },
+                    gold: { 300:'#f0d878',400:'#e0c068',500:'#c9a84c',600:'#a8883a',700:'#8a6e2e' },
+                    vermilion: { 400:'#ef4444',500:'#b91c1c',600:'#991b1b' }
+                },
+                fontFamily: { serif:['Noto Serif SC','serif'], sans:['Noto Sans SC','sans-serif'] }
+            }
+        }
+    }
+    </script>
+    <style>
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Noto Sans SC',sans-serif; background:#0f0e0c; color:#f5f0e8; overflow:hidden; height:100vh; }
+
+        /* 背景灯光氛围 */
+        body::before, body::after {
+            content:''; position:fixed; border-radius:50%; pointer-events:none; z-index:0;
+        }
+        body::before {
+            top:-200px; right:-100px; width:600px; height:600px;
+            background:radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%);
+        }
+        body::after {
+            bottom:-200px; left:100px; width:500px; height:500px;
+            background:radial-gradient(circle, rgba(185,28,28,0.05) 0%, transparent 70%);
+        }
+
+        /* 滚动条 */
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:#3a3632; border-radius:10px; }
+        ::-webkit-scrollbar-thumb:hover { background:#4a4642; }
+
+        /* 侧边栏 */
+        .sidebar { transition: width 0.3s ease; }
+        .nav-item {
+            display:flex; align-items:center; gap:12px; padding:10px 16px; border-radius:8px;
+            cursor:pointer; transition:all 0.2s; color:#a39e93; font-size:14px; white-space:nowrap;
+        }
+        .nav-item:hover { background:rgba(201,168,76,0.08); color:#e0c068; }
+        .nav-item.active { background:rgba(201,168,76,0.12); color:#e0c068; font-weight:600; }
+        .nav-item i { width:20px; text-align:center; font-size:15px; }
+
+        /* 页面切换动画 */
+        .page { display:none; animation: fadeIn 0.3s ease; }
+        .page.active { display:block; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+
+        /* 卡片 */
+        .work-card {
+            background:#252320; border:1px solid #3a3632; border-radius:12px; overflow:hidden;
+            cursor:pointer; transition:all 0.3s ease;
+        }
+        .work-card:hover { border-color:#c9a84c; transform:translateY(-4px); box-shadow:0 12px 40px rgba(0,0,0,0.4); }
+        .work-card img { width:100%; aspect-ratio:4/3; object-fit:cover; }
+        .work-card .placeholder-img {
+            width:100%; aspect-ratio:4/3; display:flex; align-items:center; justify-content:center;
+            background:linear-gradient(135deg,#1c1a17 0%,#252320 100%); color:#4a4642; font-size:40px;
+        }
+
+        /* 标签 */
+        .tag {
+            display:inline-flex; align-items:center; padding:2px 10px; border-radius:20px;
+            font-size:11px; font-weight:500; letter-spacing:0.5px;
+        }
+        .tag-registered { background:rgba(34,197,94,0.12); color:#4ade80; }
+        .tag-pending { background:rgba(201,168,76,0.12); color:#e0c068; }
+        .tag-unregistered { background:rgba(163,158,147,0.12); color:#a39e93; }
+        .tag-type { background:rgba(201,168,76,0.08); color:#c9a84c; border:1px solid rgba(201,168,76,0.2); }
+
+        /* 上传区域 */
+        .upload-zone {
+            border:2px dashed #3a3632; border-radius:12px; padding:48px; text-align:center;
+            cursor:pointer; transition:all 0.3s; background:rgba(37,35,32,0.5);
+        }
+        .upload-zone:hover, .upload-zone.dragover { border-color:#c9a84c; background:rgba(201,168,76,0.05); }
+        .upload-zone.has-image { padding:12px; border-style:solid; }
+
+        /* 表单 */
+        .form-input {
+            width:100%; padding:10px 14px; background:#1c1a17; border:1px solid #3a3632;
+            border-radius:8px; color:#f5f0e8; font-size:14px; font-family:inherit;
+            transition:border-color 0.2s; outline:none;
+        }
+        .form-input:focus { border-color:#c9a84c; }
+        .form-input::placeholder { color:#6b6660; }
+        select.form-input { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b6660' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; }
+        textarea.form-input { resize:vertical; min-height:80px; }
+
+        /* 按钮 */
+        .btn-gold {
+            padding:10px 24px; background:linear-gradient(135deg,#c9a84c,#a8883a); color:#0f0e0c;
+            border:none; border-radius:8px; font-weight:600; font-size:14px; cursor:pointer;
+            transition:all 0.2s; font-family:inherit;
+        }
+        .btn-gold:hover { background:linear-gradient(135deg,#e0c068,#c9a84c); transform:translateY(-1px); }
+        .btn-outline {
+            padding:8px 18px; background:transparent; color:#a39e93; border:1px solid #3a3632;
+            border-radius:8px; font-size:13px; cursor:pointer; transition:all 0.2s; font-family:inherit;
+        }
+        .btn-outline:hover { border-color:#c9a84c; color:#e0c068; }
+        .btn-danger {
+            padding:8px 18px; background:rgba(185,28,28,0.15); color:#ef4444; border:1px solid rgba(185,28,28,0.3);
+            border-radius:8px; font-size:13px; cursor:pointer; transition:all 0.2s; font-family:inherit;
+        }
+        .btn-danger:hover { background:rgba(185,28,28,0.25); }
+
+        /* 模态框 */
+        .modal-overlay {
+            position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:100;
+            display:none; align-items:center; justify-content:center; padding:20px;
+            backdrop-filter:blur(4px);
+        }
+        .modal-overlay.show { display:flex; animation:fadeIn 0.2s ease; }
+        .modal-box {
+            background:#1c1a17; border:1px solid #3a3632; border-radius:16px;
+            max-width:640px; width:100%; max-height:85vh; overflow-y:auto; padding:28px;
+        }
+
+        /* Toast */
+        .toast-container { position:fixed; top:20px; right:20px; z-index:200; display:flex; flex-direction:column; gap:8px; }
+        .toast {
+            padding:12px 20px; border-radius:10px; font-size:13px; font-weight:500;
+            animation:slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+            display:flex; align-items:center; gap:8px; min-width:240px;
+        }
+        .toast-success { background:rgba(34,197,94,0.15); border:1px solid rgba(34,197,94,0.3); color:#4ade80; }
+        .toast-error { background:rgba(185,28,28,0.15); border:1px solid rgba(185,28,28,0.3); color:#ef4444; }
+        .toast-warning { background:rgba(201,168,76,0.15); border:1px solid rgba(201,168,76,0.3); color:#e0c068; }
+        @keyframes slideIn { from{opacity:0;transform:translateX(40px)} to{opacity:1;transform:translateX(0)} }
+        @keyframes fadeOut { to{opacity:0;transform:translateX(40px)} }
+
+        /* 统计柱状图 */
+        .bar-chart { display:flex; align-items:flex-end; gap:16px; height:180px; padding-top:20px; }
+        .bar-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; }
+        .bar-fill {
+            width:100%; max-width:60px; border-radius:6px 6px 0 0; transition:height 0.6s ease;
+            background:linear-gradient(to top, #c9a84c, #e0c068);
+        }
+        .bar-label { font-size:11px; color:#a39e93; text-align:center; }
+        .bar-value { font-size:13px; color:#e0c068; font-weight:600; }
+
+        /* 空状态 */
+        .empty-state { text-align:center; padding:80px 20px; color:#6b6660; }
+        .empty-state i { font-size:48px; margin-bottom:16px; display:block; color:#3a3632; }
+
+        /* 入场动画 */
+        .stagger-in { animation: fadeIn 0.4s ease backwards; }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration:0.01ms !important; transition-duration:0.01ms !important; }
+        }
+    </style>
+</head>
+<body class="flex">
+
+    <!-- Toast 容器 -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ========== 侧边栏 ========== -->
+    <aside class="sidebar w-60 h-screen flex-shrink-0 bg-ink-900 border-r border-ink-600 flex flex-col z-10 relative">
+        <!-- Logo区 -->
+        <div class="p-5 border-b border-ink-600">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-gold-500 to-gold-700 flex items-center justify-center text-ink-950 text-sm font-bold font-serif">刀</div>
+                <div>
+                    <div class="text-sm font-bold text-ink-50 font-serif leading-tight">大刀灯IP</div>
+                    <div class="text-[10px] text-ink-400 tracking-wider">知识产权数据库</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 导航 -->
+        <nav class="flex-1 p-3 flex flex-col gap-1" role="navigation" aria-label="主导航">
+            <div class="nav-item active" data-page="gallery" onclick="switchPage('gallery')" role="button" tabindex="0">
+                <i class="fas fa-images"></i><span>图库管理</span>
+            </div>
+            <div class="nav-item" data-page="add" onclick="switchPage('add')" role="button" tabindex="0">
+                <i class="fas fa-plus-circle"></i><span>添加作品</span>
+            </div>
+            <div class="nav-item" data-page="ip" onclick="switchPage('ip')" role="button" tabindex="0">
+                <i class="fas fa-shield-halved"></i><span>知识产权保护</span>
+            </div>
+            <div class="nav-item" data-page="stats" onclick="switchPage('stats')" role="button" tabindex="0">
+                <i class="fas fa-chart-bar"></i><span>数据概览</span>
+            </div>
+        </nav>
+
+        <!-- 底部操作 -->
+        <div class="p-3 border-t border-ink-600">
+            <button class="btn-outline w-full text-center" onclick="exportRegistry()">
+                <i class="fas fa-file-export mr-2"></i>导出备案清单
+            </button>
+        </div>
+    </aside>
+
+    <!-- ========== 主内容区 ========== -->
+    <main class="flex-1 h-screen overflow-y-auto relative z-10">
+
+        <!-- 顶部栏 -->
+        <header class="sticky top-0 z-20 bg-ink-950/80 backdrop-blur-md border-b border-ink-600 px-8 py-4 flex items-center justify-between">
+            <div>
+                <h1 id="pageTitle" class="text-lg font-bold font-serif text-ink-50">图库管理</h1>
+                <p id="pageDesc" class="text-xs text-ink-400 mt-0.5">管理所有IP形象作品及版权信息</p>
+            </div>
+            <div id="headerExtra" class="flex items-center gap-3">
+                <!-- 搜索框（图库页显示） -->
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-ink-400 text-xs"></i>
+                    <input type="text" id="searchInput" placeholder="搜索作品名称..." class="form-input pl-9 py-2 text-sm w-56" oninput="renderGallery()">
+                </div>
+                <span class="text-xs text-ink-400" id="workCount"></span>
+            </div>
+        </header>
+
+        <!-- ===== 图库页面 ===== -->
+        <section class="page active p-8" id="page-gallery">
+            <!-- 筛选栏 -->
+            <div class="flex items-center gap-3 mb-6">
+                <select id="filterType" class="form-input py-2 text-sm w-40" onchange="renderGallery()">
+                    <option value="">全部类型</option>
+                    <option value="IP形象设计">IP形象设计</option>
+                    <option value="应用场景设计">应用场景设计</option>
+                    <option value="衍生品设计">衍生品设计</option>
+                    <option value="宣传物料">宣传物料</option>
+                    <option value="其他">其他</option>
+                </select>
+                <select id="filterStatus" class="form-input py-2 text-sm w-40" onchange="renderGallery()">
+                    <option value="">全部状态</option>
+                    <option value="已登记">已登记</option>
+                    <option value="申请中">申请中</option>
+                    <option value="待登记">待登记</option>
+                </select>
+            </div>
+            <!-- 图片网格 -->
+            <div id="galleryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+            <!-- 空状态 -->
+            <div id="galleryEmpty" class="empty-state hidden">
+                <i class="fas fa-image"></i>
+                <p class="text-base mb-2">暂无作品</p>
+                <p class="text-sm mb-6">点击左侧"添加作品"开始录入IP形象</p>
+                <button class="btn-gold" onclick="switchPage('add')">添加第一件作品</button>
+            </div>
+        </section>
+
+        <!-- ===== 添加作品页面 ===== -->
+        <section class="page p-8" id="page-add">
+            <div class="max-w-2xl">
+                <!-- 上传区域 -->
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-ink-200 mb-2">作品图片</label>
+                    <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+                        <div id="uploadPlaceholder">
+                            <i class="fas fa-cloud-arrow-up text-3xl text-ink-500 mb-3"></i>
+                            <p class="text-sm text-ink-300 mb-1">点击或拖拽图片到此区域</p>
+                            <p class="text-xs text-ink-400">支持 JPG、PNG、WebP，图片将自动压缩存储</p>
+                        </div>
+                        <img id="uploadPreview" class="hidden max-h-64 mx-auto rounded-lg" alt="预览">
+                    </div>
+                    <input type="file" id="fileInput" accept="image/*" class="hidden" onchange="handleFileSelect(event)">
+                    <button id="clearImageBtn" class="hidden text-xs text-ink-400 hover:text-vermilion-400 mt-2 cursor-pointer" onclick="clearUpload()">
+                        <i class="fas fa-xmark mr-1"></i>移除图片
+                    </button>
+                </div>
+
+                <!-- 表单 -->
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-ink-200 mb-1.5">作品名称 <span class="text-vermilion-400">*</span></label>
+                        <input type="text" id="formName" class="form-input" placeholder="如：大刀灯·明灯">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-ink-200 mb-1.5">创作者/团队 <span class="text-vermilion-400">*</span></label>
+                        <input type="text" id="formCreator" class="form-input" placeholder="如：XX设计团队">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-ink-200 mb-1.5">创作日期 <span class="text-vermilion-400">*</span></label>
+                        <input type="date" id="formDate" class="form-input">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-ink-200 mb-1.5">作品类型</label>
+                        <select id="formType" class="form-input">
+                            <option value="IP形象设计">IP形象设计</option>
+                            <option value="应用场景设计">应用场景设计</option>
+                            <option value="衍生品设计">衍生品设计</option>
+                            <option value="宣传物料">宣传物料</option>
+                            <option value="其他">其他</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-ink-200 mb-1.5">版权状态</label>
+                        <select id="formStatus" class="form-input">
+                            <option value="待登记">待登记</option>
+                            <option value="申请中">申请中</option>
+                            <option value="已登记">已登记</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-ink-200 mb-1.5">版权登记号</label>
+                    <input type="text" id="formCopyrightNo" class="form-input" placeholder="如：皖作登字-2024-F-XXXXX（已登记时填写）">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-ink-200 mb-1.5">作品描述</label>
+                    <textarea id="formDesc" class="form-input" placeholder="简要描述作品的内容和特征..."></textarea>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-ink-200 mb-1.5">设计理念</label>
+                    <textarea id="formConcept" class="form-input" placeholder="阐述设计灵感来源、文化内涵、创意亮点..."></textarea>
+                </div>
+                <div class="flex items-center gap-3">
+                    <button class="btn-gold" onclick="saveWork()">
+                        <i class="fas fa-save mr-2"></i>保存作品
+                    </button>
+                    <button class="btn-outline" onclick="resetForm()">重置表单</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 知识产权保护页面 ===== -->
+        <section class="page p-8" id="page-ip">
+            <div class="max-w-3xl space-y-6">
+                <!-- 版权声明卡片 -->
+                <article class="bg-ink-800 border border-ink-600 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-500">
+                            <i class="fas fa-scroll"></i>
+                        </div>
+                        <h2 class="text-base font-bold font-serif text-ink-50">版权保护声明</h2>
+                    </div>
+                    <div class="text-sm text-ink-200 leading-relaxed space-y-3">
+                        <p>本数据库中收录的所有作品，包括但不限于IP形象设计图、应用场景设计、衍生品设计及相关宣传物料，均为"歙县大刀灯非遗IP形象设计项目"团队原创作品，受《中华人民共和国著作权法》保护。</p>
+                        <p>未经本团队书面授权，任何单位或个人不得以任何形式复制、发行、展览、表演、放映、广播、信息网络传播、摄制、改编、翻译、汇编上述作品，亦不得进行实质性相似的设计创作。</p>
+                        <p class="text-gold-400 font-medium">凡侵犯本团队知识产权的行为，我们将依法追究其法律责任，包括但不限于要求停止侵权、赔偿损失、消除影响等。</p>
+                    </div>
+                </article>
+
+                <!-- 法律依据 -->
+                <article class="bg-ink-800 border border-ink-600 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-500">
+                            <i class="fas fa-gavel"></i>
+                        </div>
+                        <h2 class="text-base font-bold font-serif text-ink-50">法律依据</h2>
+                    </div>
+                    <ul class="text-sm text-ink-200 leading-relaxed space-y-2.5">
+                        <li class="flex gap-2"><span class="text-gold-500 mt-1">&#9670;</span><span><strong class="text-ink-50">《中华人民共和国著作权法》</strong>（2020年修正）第三条：美术作品属于受保护的作品范畴；第十一条：著作权属于作者；第四十七条、第四十八条：明确了侵权行为的法律责任。</span></li>
+                        <li class="flex gap-2"><span class="text-gold-500 mt-1">&#9670;</span><span><strong class="text-ink-50">《中华人民共和国非物质文化遗产法》</strong>（2011年）第四十四条：涉及非物质文化遗产的知识产权，依照有关法律法规执行。</span></li>
+                        <li class="flex gap-2"><span class="text-gold-500 mt-1">&#9670;</span><span><strong class="text-ink-50">《伯尔尼公约》</strong>：中国作为缔约国，美术作品自动获得国际著作权保护，无需履行任何手续。</span></li>
+                        <li class="flex gap-2"><span class="text-gold-500 mt-1">&#9670;</span><span><strong class="text-ink-50">《作品自愿登记试行办法》</strong>：通过中国版权保护中心进行作品登记，取得作品登记证书，作为著作权归属的初步证据。</span></li>
+                    </ul>
+                </article>
+
+                <!-- 保护措施 -->
+                <article class="bg-ink-800 border border-ink-600 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-500">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h2 class="text-base font-bold font-serif text-ink-50">已采取的保护措施</h2>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-ink-900/50 rounded-lg p-4 border border-ink-600">
+                            <div class="text-gold-500 text-lg mb-2"><i class="fas fa-database"></i></div>
+                            <h3 class="text-sm font-bold text-ink-50 mb-1">数字化存证</h3>
+                            <p class="text-xs text-ink-300 leading-relaxed">建立知识产权数据库，完整记录每件作品的创作时间、创作者、设计理念等信息，形成完整的证据链。</p>
+                        </div>
+                        <div class="bg-ink-900/50 rounded-lg p-4 border border-ink-600">
+                            <div class="text-gold-500 text-lg mb-2"><i class="fas fa-file-signature"></i></div>
+                            <h3 class="text-sm font-bold text-ink-50 mb-1">版权登记</h3>
+                            <p class="text-xs text-ink-300 leading-relaxed">核心IP形象设计已通过安徽省版权局/中国版权保护中心进行作品登记，取得登记证书。</p>
+                        </div>
+                        <div class="bg-ink-900/50 rounded-lg p-4 border border-ink-600">
+                            <div class="text-gold-500 text-lg mb-2"><i class="fas fa-clock-rotate-left"></i></div>
+                            <h3 class="text-sm font-bold text-ink-50 mb-1">时间戳存证</h3>
+                            <p class="text-xs text-ink-300 leading-relaxed">利用区块链时间戳技术对设计稿进行电子存证，确保创作时间的不可篡改性。</p>
+                        </div>
+                        <div class="bg-ink-900/50 rounded-lg p-4 border border-ink-600">
+                            <div class="text-gold-500 text-lg mb-2"><i class="fas fa-file-export"></i></div>
+                            <h3 class="text-sm font-bold text-ink-50 mb-1">备案清单导出</h3>
+                            <p class="text-xs text-ink-300 leading-relaxed">支持一键导出完整的作品备案清单，便于向相关部门提交知识产权保护材料。</p>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 版权登记流程 -->
+                <article class="bg-ink-800 border border-ink-600 rounded-xl p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-lg bg-gold-500/10 flex items-center justify-center text-gold-500">
+                            <i class="fas fa-list-check"></i>
+                        </div>
+                        <h2 class="text-base font-bold font-serif text-ink-50">版权登记流程</h2>
+                    </div>
+                    <div class="flex items-center gap-0 text-sm">
+                        <div class="flex-1 text-center">
+                            <div class="w-10 h-10 rounded-full bg-gold-500/15 text-gold-500 flex items-center justify-center mx-auto mb-2 text-sm font-bold">1</div>
+                            <div class="text-ink-50 font-medium">准备材料</div>
+                            <div class="text-xs text-ink-400 mt-1">作品图样、创作说明书、申请表</div>
+                        </div>
+                        <div class="text-ink-600 -mt-6"><i class="fas fa-chevron-right"></i></div>
+                        <div class="flex-1 text-center">
+                            <div class="w-10 h-10 rounded-full bg-gold-500/15 text-gold-500 flex items-center justify-center mx-auto mb-2 text-sm font-bold">2</div>
+                            <div class="text-ink-50 font-medium">提交申请</div>
+                            <div class="text-xs text-ink-400 mt-1">中国版权保护中心线上/线下提交</div>
+                        </div>
+                        <div class="text-ink-600 -mt-6"><i class="fas fa-chevron-right"></i></div>
+                        <div class="flex-1 text-center">
+                            <div class="w-10 h-10 rounded-full bg-gold-500/15 text-gold-500 flex items-center justify-center mx-auto mb-2 text-sm font-bold">3</div>
+                            <div class="text-ink-50 font-medium">审核受理</div>
+                            <div class="text-xs text-ink-400 mt-1">版权局审查，约30个工作日</div>
+                        </div>
+                        <div class="text-ink-600 -mt-6"><i class="fas fa-chevron-right"></i></div>
+                        <div class="flex-1 text-center">
+                            <div class="w-10 h-10 rounded-full bg-gold-500/15 text-gold-500 flex items-center justify-center mx-auto mb-2 text-sm font-bold">4</div>
+                            <div class="text-ink-50 font-medium">获取证书</div>
+                            <div class="text-xs text-ink-400 mt-1">领取《作品登记证书》</div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ===== 数据概览页面 ===== -->
+        <section class="page p-8" id="page-stats">
+            <div class="grid grid-cols-4 gap-4 mb-8" id="statsCards"></div>
+            <div class="grid grid-cols-2 gap-6 mb-8">
+                <div class="bg-ink-800 border border-ink-600 rounded-xl p-6">
+                    <h3 class="text-sm font-bold text-ink-50 mb-4">作品类型分布</h3>
+                    <div class="bar-chart" id="typeChart"></div>
+                </div>
+                <div class="bg-ink-800 border border-ink-600 rounded-xl p-6">
+                    <h3 class="text-sm font-bold text-ink-50 mb-4">版权状态分布</h3>
+                    <div class="bar-chart" id="statusChart"></div>
+                </div>
+            </div>
+            <div class="bg-ink-800 border border-ink-600 rounded-xl p-6">
+                <h3 class="text-sm font-bold text-ink-50 mb-4">最近入库作品</h3>
+                <div id="recentList"></div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========== 详情模态框 ========== -->
+    <div class="modal-overlay" id="detailModal" onclick="if(event.target===this)closeModal('detailModal')">
+        <div class="modal-box" role="dialog" aria-label="作品详情">
+            <div class="flex items-center justify-between mb-5">
+                <h2 class="text-lg font-bold font-serif text-ink-50" id="detailTitle">作品详情</h2>
+                <button class="text-ink-400 hover:text-ink-50 text-lg cursor-pointer" onclick="closeModal('detailModal')" aria-label="关闭"><i class="fas fa-xmark"></i></button>
+            </div>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <!-- ========== 删除确认模态框 ========== -->
+    <div class="modal-overlay" id="deleteModal" onclick="if(event.target===this)closeModal('deleteModal')">
+        <div class="modal-box max-w-sm" role="dialog" aria-label="确认删除">
+            <div class="text-center">
+                <div class="w-14 h-14 rounded-full bg-vermilion-500/10 flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-trash-can text-vermilion-400 text-xl"></i>
+                </div>
+                <h3 class="text-base font-bold text-ink-50 mb-2">确认删除</h3>
+                <p class="text-sm text-ink-300 mb-6" id="deleteMsg">确定要删除这件作品吗？此操作不可撤销。</p>
+                <div class="flex gap-3 justify-center">
+                    <button class="btn-outline" onclick="closeModal('deleteModal')">取消</button>
+                    <button class="btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">确认删除</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+const SUPABASE_URL = 'https://sqlpyspugccuwpaomgjx.supabase.co/rest/v1/';  // 替换为你的 Supabase URL
+const SUPABASE_ANON_KEY = 'sb_publishable_EiHqiyJJu7K98Hy1_n3cDg_BY7KBvuU';  // 替换为你的 anon key
+// ==========================================
+// 数据层：localStorage 读写
+// ==========================================
+const STORAGE_KEY = 'dadeng_ip_works';
+let currentImageData = null; // 暂存上传的图片base64
+let pendingDeleteId = null;  // 待删除的作品ID
+
+// 读取所有作品
+function getWorks() {
+    try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    } catch(e) {
+        return [];
+    }
+}
+
+// 保存所有作品
+function saveWorks(works) {
+    try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(works));
+    } catch(e) {
+        showToast('存储空间不足，请删除部分作品后重试', 'error');
+    }
+}
+
+// 生成唯一ID
+function genId() {
+    return 'w_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+}
+
+// ==========================================
+// 初始化示例数据（仅首次打开时）
+// ==========================================
+function initSampleData() {
+    if (localStorage.getItem(STORAGE_KEY)) return; // 已有数据则跳过
+    const samples = [
+        {
+            id: genId(), name: '大刀灯·明灯', creator: 'XX设计团队',
+            date: '2024-09-15', type: 'IP形象设计', copyrightStatus: '已登记',
+            copyrightNo: '皖作登字-2024-F-01234',
+            description: '以歙县大刀灯为核心元素，提取灯具造型特征，融合现代卡通风格，塑造出憨态可掬的IP形象。头部造型取自大刀灯的灯罩形态，身着传统民俗服饰。',
+            concept: '取"明灯"之意，象征非遗文化的照亮与传承。色彩以传统朱红、金色为主调，体现节庆氛围与文化底蕴。',
+            imageData: null, createdAt: '2024-10-01T10:00:00'
+        },
+        {
+            id: genId(), name: '大刀灯·夜行', creator: 'XX设计团队',
+            date: '2024-10-08', type: 'IP形象设计', copyrightStatus: '申请中',
+            copyrightNo: '',
+            description: '"明灯"的夜间场景版本，IP形象手持大刀灯在古街夜色中行走的动态设计。',
+            concept: '展现大刀灯在夜间巡游时的真实使用场景，通过灯光效果与暗色背景的对比，突出非遗文化的仪式感。',
+            imageData: null, createdAt: '2024-10-10T14:30:00'
+        },
+        {
+            id: genId(), name: 'IP形象文创帆布袋', creator: 'XX设计团队',
+            date: '2024-10-20', type: '衍生品设计', copyrightStatus: '待登记',
+            copyrightNo: '',
+            description: '将大刀灯IP形象应用于帆布袋设计，搭配"徽州灯火"主题文字和传统纹样边框。',
+            concept: '通过日常消费品载体传播非遗文化，让IP形象融入年轻人的日常生活场景。',
+            imageData: null, createdAt: '2024-10-22T09:15:00'
+        },
+        {
+            id: genId(), name: '挑战杯展示海报', creator: 'XX设计团队',
+            date: '2024-11-01', type: '宣传物料', copyrightStatus: '待登记',
+            copyrightNo: '',
+            description: '用于挑战杯比赛展示的项目海报，包含IP形象展示、项目介绍、知识产权保护方案等内容。',
+            concept: '以大刀灯的金色光芒为视觉线索，串联海报各版块，体现从传统到现代的创新转化。',
+            imageData: null, createdAt: '2024-11-03T16:45:00'
+        }
+    ];
+    saveWorks(samples);
+}
+
+// ==========================================
+// 页面切换
+// ==========================================
+const pageTitles = {
+    gallery: ['图库管理', '管理所有IP形象作品及版权信息'],
+    add: ['添加作品', '录入新的IP形象作品到数据库'],
+    ip: ['知识产权保护', '版权声明、法律依据与保护措施'],
+    stats: ['数据概览', '作品统计与版权登记情况']
+};
+
+function switchPage(name) {
+    // 切换导航高亮
+    document.querySelectorAll('.nav-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.page === name);
+    });
+    // 切换页面显示
+    document.querySelectorAll('.page').forEach(el => {
+        el.classList.toggle('active', el.id === 'page-' + name);
+    });
+    // 更新顶部栏
+    const [title, desc] = pageTitles[name];
+    document.getElementById('pageTitle').textContent = title;
+    document.getElementById('pageDesc').textContent = desc;
+    // 搜索框只在图库页显示
+    document.getElementById('headerExtra').style.display = name === 'gallery' ? 'flex' : 'none';
+    // 页面特定逻辑
+    if (name === 'gallery') renderGallery();
+    if (name === 'stats') renderStats();
+}
+
+// ==========================================
+// 图库渲染
+// ==========================================
+function renderGallery() {
+    const works = getWorks();
+    const keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+    const filterType = document.getElementById('filterType').value;
+    const filterStatus = document.getElementById('filterStatus').value;
+
+    // 筛选
+    let filtered = works.filter(w => {
+        if (keyword && !w.name.toLowerCase().includes(keyword) && !w.creator.toLowerCase().includes(keyword)) return false;
+        if (filterType && w.type !== filterType) return false;
+        if (filterStatus && w.copyrightStatus !== filterStatus) return false;
+        return true;
+    });
+
+    // 更新计数
+    document.getElementById('workCount').textContent = `共 ${works.length} 件作品` + (filtered.length !== works.length ? `，筛选 ${filtered.length} 件` : '');
+
+    const grid = document.getElementById('galleryGrid');
+    const empty = document.getElementById('galleryEmpty');
+
+    if (filtered.length === 0) {
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+    }
+    empty.classList.add('hidden');
+
+    grid.innerHTML = filtered.map((w, i) => {
+        const statusClass = w.copyrightStatus === '已登记' ? 'tag-registered' : w.copyrightStatus === '申请中' ? 'tag-pending' : 'tag-unregistered';
+        const imgHtml = w.imageData
+            ? `<img src="${w.imageData}" alt="${w.name}" loading="lazy">`
+            : `<div class="placeholder-img"><i class="fas fa-image"></i></div>`;
+        return `
+        <div class="work-card stagger-in" style="animation-delay:${i * 0.05}s" onclick="showDetail('${w.id}')">
+            ${imgHtml}
+            <div class="p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <span class="tag tag-type">${w.type}</span>
+                    <span class="tag ${statusClass}">${w.copyrightStatus}</span>
+                </div>
+                <h3 class="text-sm font-bold text-ink-50 mb-1 truncate">${w.name}</h3>
+                <p class="text-xs text-ink-400">${w.creator} · ${w.date}</p>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+// ==========================================
+// 作品详情
+// ==========================================
+function showDetail(id) {
+    const w = getWorks().find(x => x.id === id);
+    if (!w) return;
+    document.getElementById('detailTitle').textContent = w.name;
+    const statusClass = w.copyrightStatus === '已登记' ? 'tag-registered' : w.copyrightStatus === '申请中' ? 'tag-pending' : 'tag-unregistered';
+    const imgHtml = w.imageData
+        ? `<img src="${w.imageData}" alt="${w.name}" class="w-full max-h-80 object-contain rounded-lg bg-ink-900 mb-5">`
+        : `<div class="w-full h-48 flex items-center justify-center rounded-lg bg-ink-900 text-ink-500 text-3xl mb-5"><i class="fas fa-image"></i></div>`;
+
+    document.getElementById('detailContent').innerHTML = `
+        ${imgHtml}
+        <div class="flex items-center gap-3 mb-5">
+            <span class="tag tag-type">${w.type}</span>
+            <span class="tag ${statusClass}">${w.copyrightStatus}</span>
+            ${w.copyrightNo ? `<span class="text-xs text-ink-400"><i class="fas fa-certificate mr-1"></i>${w.copyrightNo}</span>` : ''}
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-5">
+            <div><div class="text-xs text-ink-400 mb-1">创作者/团队</div><div class="text-sm text-ink-50">${w.creator}</div></div>
+            <div><div class="text-xs text-ink-400 mb-1">创作日期</div><div class="text-sm text-ink-50">${w.date}</div></div>
+            <div><div class="text-xs text-ink-400 mb-1">入库时间</div><div class="text-sm text-ink-50">${new Date(w.createdAt).toLocaleString('zh-CN')}</div></div>
+            <div><div class="text-xs text-ink-400 mb-1">作品编号</div><div class="text-sm text-ink-50 font-mono text-xs">${w.id}</div></div>
+        </div>
+        ${w.description ? `<div class="mb-4"><div class="text-xs text-ink-400 mb-1">作品描述</div><div class="text-sm text-ink-200 leading-relaxed">${w.description}</div></div>` : ''}
+        ${w.concept ? `<div class="mb-5"><div class="text-xs text-ink-400 mb-1">设计理念</div><div class="text-sm text-ink-200 leading-relaxed">${w.concept}</div></div>` : ''}
+        <div class="flex gap-3 pt-4 border-t border-ink-600">
+            <button class="btn-danger text-xs" onclick="closeModal('detailModal');requestDelete('${w.id}','${w.name}')">
+                <i class="fas fa-trash-can mr-1"></i>删除作品
+            </button>
+        </div>
+    `;
+    openModal('detailModal');
+}
+
+// ==========================================
+// 删除功能
+// ==========================================
+function requestDelete(id, name) {
+    pendingDeleteId = id;
+    document.getElementById('deleteMsg').textContent = `确定要删除作品"${name}"吗？此操作不可撤销。`;
+    openModal('deleteModal');
+}
+
+function confirmDelete() {
+    if (!pendingDeleteId) return;
+    const works = getWorks().filter(w => w.id !== pendingDeleteId);
+    saveWorks(works);
+    pendingDeleteId = null;
+    closeModal('deleteModal');
+    renderGallery();
+    showToast('作品已删除', 'success');
+}
+
+// ==========================================
+// 图片上传与压缩
+// ==========================================
+const uploadZone = document.getElementById('uploadZone');
+
+// 拖拽事件
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) processImage(file);
+    else showToast('请上传图片文件', 'warning');
+});
+
+function handleFileSelect(e) {
+    const file = e.target.files[0];
+    if (file) processImage(file);
+}
+
+// 压缩图片到合理大小
+function processImage(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const maxW = 800;
+            let w = img.width, h = img.height;
+            if (w > maxW) { h = Math.round(h * maxW / w); w = maxW; }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            currentImageData = canvas.toDataURL('image/jpeg', 0.65);
+            // 显示预览
+            const preview = document.getElementById('uploadPreview');
+            preview.src = currentImageData;
+            preview.classList.remove('hidden');
+            document.getElementById('uploadPlaceholder').classList.add('hidden');
+            document.getElementById('clearImageBtn').classList.remove('hidden');
+            uploadZone.classList.add('has-image');
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function clearUpload() {
+    currentImageData = null;
+    document.getElementById('uploadPreview').classList.add('hidden');
+    document.getElementById('uploadPlaceholder').classList.remove('hidden');
+    document.getElementById('clearImageBtn').classList.add('hidden');
+    uploadZone.classList.remove('has-image');
+    document.getElementById('fileInput').value = '';
+}
+
+// ==========================================
+// 保存作品
+// ==========================================
+function saveWork() {
+    const name = document.getElementById('formName').value.trim();
+    const creator = document.getElementById('formCreator').value.trim();
+    const date = document.getElementById('formDate').value;
+
+    // 验证必填项
+    if (!name) { showToast('请填写作品名称', 'warning'); document.getElementById('formName').focus(); return; }
+    if (!creator) { showToast('请填写创作者/团队', 'warning'); document.getElementById('formCreator').focus(); return; }
+    if (!date) { showToast('请选择创作日期', 'warning'); document.getElementById('formDate').focus(); return; }
+
+    const work = {
+        id: genId(),
+        name: name,
+        creator: creator,
+        date: date,
+        type: document.getElementById('formType').value,
+        copyrightStatus: document.getElementById('formStatus').value,
+        copyrightNo: document.getElementById('formCopyrightNo').value.trim(),
+        description: document.getElementById('formDesc').value.trim(),
+        concept: document.getElementById('formConcept').value.trim(),
+        imageData: currentImageData,
+        createdAt: new Date().toISOString()
+    };
+
+    const works = getWorks();
+    works.unshift(work);
+    saveWorks(works);
+    resetForm();
+    showToast(`作品"${name}"已成功入库`, 'success');
+    switchPage('gallery');
+}
+
+function resetForm() {
+    document.getElementById('formName').value = '';
+    document.getElementById('formCreator').value = '';
+    document.getElementById('formDate').value = '';
+    document.getElementById('formType').value = 'IP形象设计';
+    document.getElementById('formStatus').value = '待登记';
+    document.getElementById('formCopyrightNo').value = '';
+    document.getElementById('formDesc').value = '';
+    document.getElementById('formConcept').value = '';
+    clearUpload();
+}
+
+// ==========================================
+// 数据统计
+// ==========================================
+function renderStats() {
+    const works = getWorks();
+    const total = works.length;
+    const registered = works.filter(w => w.copyrightStatus === '已登记').length;
+    const pending = works.filter(w => w.copyrightStatus === '申请中').length;
+    const types = {};
+    works.forEach(w => { types[w.type] = (types[w.type] || 0) + 1; });
+    const statuses = { '已登记': registered, '申请中': pending, '待登记': total - registered - pending };
+
+    // 统计卡片
+    document.getElementById('statsCards').innerHTML = [
+        { label: '作品总数', value: total, icon: 'fa-images', color: 'text-gold-500' },
+        { label: '已登记', value: registered, icon: 'fa-circle-check', color: 'text-green-400' },
+        { label: '申请中', value: pending, icon: 'fa-hourglass-half', color: 'text-yellow-400' },
+        { label: '作品类型', value: Object.keys(types).length, icon: 'fa-layer-group', color: 'text-blue-400' }
+    ].map(c => `
+        <div class="bg-ink-800 border border-ink-600 rounded-xl p-5">
+            <div class="flex items-center justify-between mb-3">
+                <span class="text-xs text-ink-400">${c.label}</span>
+                <i class="fas ${c.icon} ${c.color}"></i>
+            </div>
+            <div class="text-2xl font-bold text-ink-50">${c.value}</div>
+        </div>
+    `).join('');
+
+    // 类型柱状图
+    const maxTypeVal = Math.max(...Object.values(types), 1);
+    document.getElementById('typeChart').innerHTML = Object.entries(types).map(([k, v]) => `
+        <div class="bar-item">
+            <div class="bar-value">${v}</div>
+            <div class="bar-fill" style="height:${Math.max(v / maxTypeVal * 140, 4)}px"></div>
+            <div class="bar-label">${k}</div>
+        </div>
+    `).join('') || '<div class="text-ink-400 text-sm w-full text-center">暂无数据</div>';
+
+    // 状态柱状图
+    const statusColors = { '已登记': '#4ade80', '申请中': '#facc15', '待登记': '#a39e93' };
+    const maxStatusVal = Math.max(...Object.values(statuses), 1);
+    document.getElementById('statusChart').innerHTML = Object.entries(statuses).map(([k, v]) => `
+        <div class="bar-item">
+            <div class="bar-value" style="color:${statusColors[k]}">${v}</div>
+            <div class="bar-fill" style="height:${Math.max(v / maxStatusVal * 140, 4)}px;background:linear-gradient(to top,${statusColors[k]}88,${statusColors[k]})"></div>
+            <div class="bar-label">${k}</div>
+        </div>
+    `).join('') || '<div class="text-ink-400 text-sm w-full text-center">暂无数据</div>';
+
+    // 最近入库
+    const recent = works.slice(0, 5);
+    document.getElementById('recentList').innerHTML = recent.length ? recent.map(w => {
+        const statusClass = w.copyrightStatus === '已登记' ? 'tag-registered' : w.copyrightStatus === '申请中' ? 'tag-pending' : 'tag-unregistered';
+        return `
+        <div class="flex items-center gap-4 py-3 border-b border-ink-600 last:border-0 cursor-pointer hover:bg-ink-700/30 -mx-3 px-3 rounded-lg transition-colors" onclick="switchPage('gallery');setTimeout(()=>showDetail('${w.id}'),100)">
+            <div class="w-10 h-10 rounded-lg bg-ink-900 flex items-center justify-center text-ink-500 flex-shrink-0 overflow-hidden">
+                ${w.imageData ? `<img src="${w.imageData}" class="w-full h-full object-cover" alt="">` : '<i class="fas fa-image text-sm"></i>'}
+            </div>
+            <div class="flex-1 min-w-0">
+                <div class="text-sm text-ink-50 truncate">${w.name}</div>
+                <div class="text-xs text-ink-400">${w.creator} · ${w.date}</div>
+            </div>
+            <span class="tag ${statusClass} flex-shrink-0">${w.copyrightStatus}</span>
+        </div>`;
+    }).join('') : '<div class="text-ink-400 text-sm text-center py-8">暂无作品</div>';
+}
+
+// ==========================================
+// 导出备案清单
+// ==========================================
+function exportRegistry() {
+    const works = getWorks();
+    if (works.length === 0) { showToast('暂无作品可导出', 'warning'); return; }
+
+    const now = new Date().toLocaleString('zh-CN');
+    let text = `══════════════════════════════════════════\n`;
+    text += `  歙县大刀灯IP形象 · 知识产权备案清单\n`;
+    text += `══════════════════════════════════════════\n`;
+    text += `导出时间：${now}\n`;
+    text += `作品总数：${works.length} 件\n`;
+    text += `══════════════════════════════════════════\n\n`;
+
+    works.forEach((w, i) => {
+        text += `【${i + 1}】${w.name}\n`;
+        text += `  作品编号：${w.id}\n`;
+        text += `  创作者：${w.creator}\n`;
+        text += `  创作日期：${w.date}\n`;
+        text += `  作品类型：${w.type}\n`;
+        text += `  版权状态：${w.copyrightStatus}\n`;
+        if (w.copyrightNo) text += `  登记号：${w.copyrightNo}\n`;
+        if (w.description) text += `  描述：${w.description}\n`;
+        if (w.concept) text += `  理念：${w.concept}\n`;
+        text += `  入库时间：${new Date(w.createdAt).toLocaleString('zh-CN')}\n`;
+        text += `────────────────────────────────────────\n\n`;
+    });
+
+    text += `══════════════════════════════════════════\n`;
+    text += `  本清单由知识产权数据库系统自动生成\n`;
+    text += `  作为作品版权归属的辅助证明材料\n`;
+    text += `══════════════════════════════════════════\n`;
+
+    // 下载文件
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `大刀灯IP知识产权备案清单_${new Date().toISOString().slice(0,10)}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('备案清单已导出', 'success');
+}
+
+// ==========================================
+// 模态框
+// ==========================================
+function openModal(id) {
+    document.getElementById(id).classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+    document.body.style.overflow = '';
+}
+
+// ==========================================
+// Toast 提示
+// ==========================================
+function showToast(msg, type = 'success') {
+    const container = document.getElementById('toastContainer');
+    const icons = { success: 'fa-circle-check', error: 'fa-circle-xmark', warning: 'fa-triangle-exclamation' };
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `<i class="fas ${icons[type]}"></i><span>${msg}</span>`;
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 3200);
+}
+
+// ==========================================
+// 键盘支持：导航项回车触发
+// ==========================================
+document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); }
+    });
+});
+
+// ESC 关闭模态框
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.show').forEach(m => closeModal(m.id));
+    }
+});
+
+// ==========================================
+// 初始化
+// ==========================================
+initSampleData();
+renderGallery();
+</script>
+</body>
+</html>
+
